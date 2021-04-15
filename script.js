@@ -29,18 +29,6 @@ const Player = function (symb) {
     return player;
 }
 
-const gameBoard = (function () {
-
-    const cells = ['', '', '', '', '', '', '', '', ''];
-
-    return {
-        cells,
-    };
-
-}());
-
-
-
 const gameFlow = (function () {
 
     let totalMoves = 0;
@@ -62,7 +50,7 @@ const gameFlow = (function () {
 
         let userSymbol = ' ', options = ['X', 'O'], userSymbolIndex = 0;
 
-        while (userSymbol && !options.includes((userSymbol = prompt('Select X or O', 'X'))));
+        while (userSymbol && !options.includes((userSymbol = prompt('Select X or O (Cancel will assign you X)', 'X'))));
 
         if (userSymbol)
             userSymbolIndex = options.indexOf(userSymbol);

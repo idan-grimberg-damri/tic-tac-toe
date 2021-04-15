@@ -55,6 +55,7 @@ h1{
     min-height: 340px;
     min-width: 340px;
     margin: 0px 100px;
+    cursor: pointer;
     
 }
 
@@ -80,6 +81,13 @@ h1{
 button{
     display: block;
     margin: 50px auto;
+    padding: 10px 50px;
+    background-color: transparent ;
+    border:none;
+    cursor: pointer;
+    color: rgb(117, 95, 107);
+    font-size: 2em;
+    letter-spacing: 3px;
 }
 
 .winner{
