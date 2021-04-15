@@ -1,0 +1,64 @@
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body{
+    background-color: cornflowerblue;
+}
+
+h1{
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 50px;
+
+}
+
+.container{
+    text-align: center;
+    background-color: purple;
+    
+}
+
+.player0, .player1{
+    display: inline-block;
+    position: relative;
+    background-color: peru;
+}
+.player0{
+    right: 15%;
+}
+.player1{
+    left: 15%;
+}
+
+.grid-container{
+    display: inline-grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    background-color: black;
+    height: 340px;
+    width: 340px;
+    margin: 30px auto;
+    
+}
+
+.grid-item{
+    display: flex;
+    color: white;
+    border: 2px solid white;
+    padding: 10px;
+    font-size: 2em;
+    align-items: center;
+    justify-content: center;
+}
+
+button{
+    display: block;
+    margin: 50px auto;
+}
+
