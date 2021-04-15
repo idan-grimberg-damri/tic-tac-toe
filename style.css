@@ -82,3 +82,11 @@ button{
     margin: 50px auto;
 }
 
+.winner{
+    margin-top: 20px;
+}
+
+.win-emphasis{
+    color: rgb(122, 163, 185);
+}
+

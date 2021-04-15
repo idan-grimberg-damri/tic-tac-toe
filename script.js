@@ -52,7 +52,8 @@ const gameFlow = (function () {
         rows = createCountArray(3, 2, sideLength),
         cols = createCountArray(3, 2, sideLength),
         diag = createCountArray(2, 1, sideLength),
-        antiDiag = createCountArray(2, 1, sideLength);
+        antiDiag = createCountArray(2, 1, sideLength),
+        gridWinEntries = [];
 
     rows.dim = cols.dim = 2;
     diag.dim = antiDiag.dim = 1;
@@ -69,7 +70,7 @@ const gameFlow = (function () {
         if (!players) {
             players = [Player(options[userSymbolIndex]), Player(options[1 - userSymbolIndex])];
         }
-        else if (userSymbol !== players[0].symb) {
+        else if (userSymbol && userSymbol !== players[0].symb) {
             switchSymbols();
         }
         currentPlayer = figureX();
@@ -121,9 +122,27 @@ const gameFlow = (function () {
 
     }
 
+    function setGridWinEntries(currentEntry, nextEntry) {
+        let i = sideLength;
+        while (i--) {
+            gridWinEntries[i] = currentEntry;
+            currentEntry = nextEntry(currentEntry);
+        }
+    }
+
     function isWin(row, col) {
 
-        return !(rows[currentPlayer][row] && cols[currentPlayer][col] && diag[currentPlayer] && antiDiag[currentPlayer]);
+        let res = !(rows[currentPlayer][row] && cols[currentPlayer][col] && diag[currentPlayer] && antiDiag[currentPlayer]);
+
+        if (res) {
+            switch (true) {
+                case (!rows[currentPlayer][row]): setGridWinEntries(row * 3, (currentEntry) => { return currentEntry + 1; }); break;
+                case (!cols[currentPlayer][col]): setGridWinEntries(col, (currentEntry) => { return currentEntry + 3; }); break;
+                case (!diag[currentPlayer]): setGridWinEntries(0, (currentEntry) => { return currentEntry + 4; }); break;
+                case (!antiDiag[currentPlayer]): setGridWinEntries(2, (currentEntry) => { return currentEntry + 2; }); break;
+            }
+        }
+        return res;
     }
 
     function switchPlayer() {
@@ -142,6 +161,11 @@ const gameFlow = (function () {
     
         }
     */
+
+    function getGridWinEntries() {
+        return gridWinEntries;
+    }
+
     function incTotalMoves() {
         totalMoves++;
 
@@ -170,8 +194,9 @@ const gameFlow = (function () {
         incTotalMoves,
         getPlayers,
         endGame,
-        //askToChangeSymbols,
         createPlayers,
+        setGridWinEntries,
+        getGridWinEntries,
     };
 
 
@@ -183,7 +208,8 @@ const displayController = (function () {
     const gridContainer = document.querySelector('.grid-container');
     const gridItems = document.querySelectorAll('.grid-item');
     const playButton = document.querySelector('button');
-
+    const lastWinEntries = [];
+    
     setOnPlayClickListener();
 
     function setOnPlayClickListener() {
@@ -199,8 +225,13 @@ const displayController = (function () {
         playButton.removeEventListener('click', onPlayClick);
         gridItems.forEach((item) => { item.textContent = ''; });
 
-        while (i--)
+        while (i--) {
             players[i].querySelector('h2').textContent = `Player${gameFlow.getPlayers()[i].symb}`;
+            players[i].querySelector('.score').textContent = `Score: ${gameFlow.getPlayers()[i].score}`
+        }
+
+        if (lastWinEntries.length === 3)
+            lastWinEntries.forEach((entry) => {entry.classList.toggle('win-emphasis');})
 
         setOnBoardClickListener();
 
@@ -215,6 +246,7 @@ const displayController = (function () {
         if (event.target.className !== 'grid-container' && !event.target.textContent) {
             let index = event.target.dataset.boardIndex, currentPlayer = gameFlow.getCurrentPlayer();
             let isWin, isMaxMovesReached;
+        
             event.target.textContent = gameFlow.getPlayers()[currentPlayer].symb;
 
             isWin = gameFlow.currentPlayResult(Math.floor(index / 3), Math.floor(index % 3));
@@ -227,20 +259,36 @@ const displayController = (function () {
 
                 updatePlayersStatus(isWin, currentPlayer);
 
+                if (isWin)
+                    emphasisWin();
+                else if (lastWinEntries.length > 0)
+                    lastWinEntries.pop();
 
                 setOnPlayClickListener();
-
-            }
-            else {
-                gameFlow.switchPlayer();
             }
 
+            gameFlow.switchPlayer();
         }
+    }
+
+    function emphasisWin() {
+        let items = Array.from(gridItems);
+        let entries = gameFlow.getGridWinEntries();
+        let j = 0;
+        let currentItem;
+        for (let i = 0; i < items.length; i++) {
+            currentItem = items[i];
+            if (entries.includes(parseInt(currentItem.dataset.boardIndex))){
+                currentItem.classList.toggle('win-emphasis');
+                lastWinEntries[j++] = currentItem;
+            }
+        }
+
     }
 
     function updatePlayersStatus(isWin, currentPlayer) {
         let gameResult = (isWin ? 'Win' : 'Draw');
-        players[currentPlayer].querySelector('.score').textContent = gameFlow.getPlayers()[currentPlayer].score;
+        players[currentPlayer].querySelector('.score').textContent = `Score: ${gameFlow.getPlayers()[currentPlayer].score}`;
         players[currentPlayer].querySelector('.winner').textContent = gameResult;
         if (!isWin)
             players[1 - currentPlayer].querySelector('.winner').textContent = gameResult
