@@ -28,7 +28,6 @@ h1{
 
 .player0, .player1{
     align-self: flex-start;
-    position: inherit;
     max-width: 150px;
     max-height: 150px;
     min-width: 150px;

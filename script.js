@@ -50,19 +50,24 @@ const gameFlow = (function () {
 
         let userSymbol = ' ', options = ['X', 'O'], userSymbolIndex = 0;
 
-        while (userSymbol && !options.includes((userSymbol = prompt('Select X or O (Cancel will assign you X)', 'X'))));
+        while (userSymbol && !options.includes((userSymbol = prompt('Select X or O', 'X'))));
 
-        if (userSymbol)
+        if (userSymbol) {
             userSymbolIndex = options.indexOf(userSymbol);
 
-        if (!players) {
-            players = [Player(options[userSymbolIndex]), Player(options[1 - userSymbolIndex])];
-        }
-        else if (userSymbol && userSymbol !== players[0].symb) {
-            switchSymbols();
-        }
-        currentPlayer = figureX();
+            if (!players) {
+                players = [Player(options[userSymbolIndex]), Player(options[1 - userSymbolIndex])];
+            }
+            else if (userSymbol && userSymbol !== players[0].symb) {
+                switchSymbols();
+            }
 
+            currentPlayer = figureX();
+
+            return true;
+        }
+
+        return false;
     }
 
     function switchSymbols() {
@@ -197,7 +202,7 @@ const displayController = (function () {
     const gridItems = document.querySelectorAll('.grid-item');
     const playButton = document.querySelector('button');
     const lastWinEntries = [];
-    
+
     setOnPlayClickListener();
 
     function setOnPlayClickListener() {
@@ -208,18 +213,24 @@ const displayController = (function () {
 
         let i = 2;
 
-        gameFlow.createPlayers();
+        if (!gameFlow.createPlayers())
+            return;
 
         playButton.removeEventListener('click', onPlayClick);
         gridItems.forEach((item) => { item.textContent = ''; });
 
+        let playerElement, player;
+
         while (i--) {
-            players[i].querySelector('h2').textContent = `Player${gameFlow.getPlayers()[i].symb}`;
-            players[i].querySelector('.score').textContent = `Score: ${gameFlow.getPlayers()[i].score}`
+            playerElement = players[i];
+            player = gameFlow.getPlayers()[i];
+            playerElement.querySelector('h2').textContent = `Player${player.symb}`;
+            playerElement.querySelector('.score').textContent = `Score: ${player.score}`
+            playerElement.querySelector('.winner').textContent = ``;
         }
 
         if (lastWinEntries.length === 3)
-            lastWinEntries.forEach((entry) => {entry.classList.toggle('win-emphasis');})
+            lastWinEntries.forEach((entry) => { entry.classList.toggle('win-emphasis'); })
 
         setOnBoardClickListener();
 
@@ -234,7 +245,7 @@ const displayController = (function () {
         if (event.target.className !== 'grid-container' && !event.target.textContent) {
             let index = event.target.dataset.boardIndex, currentPlayer = gameFlow.getCurrentPlayer();
             let isWin, isMaxMovesReached;
-        
+
             event.target.textContent = gameFlow.getPlayers()[currentPlayer].symb;
 
             isWin = gameFlow.currentPlayResult(Math.floor(index / 3), Math.floor(index % 3));
@@ -266,7 +277,7 @@ const displayController = (function () {
         let currentItem;
         for (let i = 0; i < items.length; i++) {
             currentItem = items[i];
-            if (entries.includes(parseInt(currentItem.dataset.boardIndex))){
+            if (entries.includes(parseInt(currentItem.dataset.boardIndex))) {
                 currentItem.classList.toggle('win-emphasis');
                 lastWinEntries[j++] = currentItem;
             }
