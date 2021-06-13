@@ -72,7 +72,7 @@ const gameFlow = (function () {
             else if (userSymbol && userSymbol !== players[0].symb) {
                 switchSymbols();
             }
-            // Figure who is the player with an "X" symbol
+            // Figure who is the player with a "X" symbol
             currentPlayer = figureX();
 
             return true;
@@ -80,42 +80,54 @@ const gameFlow = (function () {
 
         return false;
     }
-
+    // Switch the players symbols
     function switchSymbols() {
         let temp = players[0].symb;
         players[0].symb = players[1].symb;
         players[1].symb = temp;
     }
-
+    /**
+    * @param {Integer} size the size of the array
+    * @param {Integer} dim the dimention of the array
+    * @param {Integer} val the value to be in each cell of the array
+    * @returns an array to count the choices of the players
+    */
     function createCountArray(size, dim, val) {
 
         let arr = [];
 
         while (size--)
             arr.push(val);
-
+        // If it's 2D array than recursively create an identical array at keep a reference for it at the first cell of the 2D array
         if (dim === 2)
             return [createCountArray(arr.length, 1, val), arr];
 
         return arr;
 
     }
-
+    /**
+    * Logic to track if there's a winner while updating counts per rows, cokumn and diagonals
+    * @param rol the row for the player's current choice
+    * @param col the column for the player's current choice
+    * @returns true if the player won, false otherwise
+    */
     function currentPlayResult(row, col) {
-
+         
         rows[currentPlayer][row]--;
         cols[currentPlayer][col]--;
-
+        // Update diagonal count
         if (row === col)
             diag[currentPlayer]--;
-
+        // Update anti-digonal count
         if (row + col === sideLength - 1)
             antiDiag[currentPlayer]--
 
         return isWin(row, col);
 
     }
-
+    /**
+    * Restore arrays state before a new game
+    */
     function restoreArraysState() {
         let length = sideLength;
         while (length--) {
@@ -125,7 +137,11 @@ const gameFlow = (function () {
         diag[0] = diag[1] = antiDiag[0] = antiDiag[1] = sideLength;
 
     }
-
+    /**
+    * Calculate the indexes for the win row, column, diagonal, or anti-diagonal
+    * @param currentEntry the current calculated grid's entry
+    * @param nextEntry function that calculates the grid's next entry based on the grid's calculated current entry
+    */
     function setGridWinEntries(currentEntry, nextEntry) {
         let i = sideLength;
         while (i--) {
@@ -133,11 +149,14 @@ const gameFlow = (function () {
             currentEntry = nextEntry(currentEntry);
         }
     }
-
+    
+    /**
+    * @returns true if the current player won, false otherwise
+    */
     function isWin(row, col) {
-
+        // True if there's a win, false otherwise
         let res = !(rows[currentPlayer][row] && cols[currentPlayer][col] && diag[currentPlayer] && antiDiag[currentPlayer]);
-
+        // If there's a win then calculate the grid's entry base on the current win row, column, diagonal, or anti-diagonal
         if (res) {
             switch (true) {
                 case (!rows[currentPlayer][row]): setGridWinEntries(row * 3, (currentEntry) => { return currentEntry + 1; }); break;
@@ -199,6 +218,7 @@ const gameFlow = (function () {
 
 
 }());
+
 
 const displayController = (function () {
 
