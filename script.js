@@ -1,3 +1,4 @@
+//TODO - use modules and webpack
 
 /**
 * Factory of players. 
